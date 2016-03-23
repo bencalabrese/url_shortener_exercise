@@ -4,6 +4,7 @@ class ShortenedUrl < ActiveRecord::Base
   validates :long_url, length: { maximum: 1024 }
 
   validate :no_more_than_5_per_user_per_minute
+  validate :no_more_than_5_per_non_premium_user
 
   def no_more_than_5_per_user_per_minute
     search_criteria = [
@@ -15,6 +16,15 @@ class ShortenedUrl < ActiveRecord::Base
 
     if recently_created_count > 5
       errors[:base] << "No more than five short urls can be created per minute"
+    end
+  end
+
+  def no_more_than_5_per_non_premium_user
+    user = User.find(submitter_id)
+    total_created_count = self.class.where(submitter_id: user.id).count
+
+    if !user.premium && total_created_count >= 5
+      errors[:premium] << "Only premium users can create more than five short urls"
     end
   end
 
