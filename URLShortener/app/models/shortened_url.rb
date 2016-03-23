@@ -1,6 +1,22 @@
 class ShortenedUrl < ActiveRecord::Base
   validates :long_url, :short_url, :submitter_id, presence: true
   validates :short_url, uniqueness: true
+  validates :long_url, length: { maximum: 1024 }
+
+  validate :no_more_than_5_per_user_per_minute
+
+  def no_more_than_5_per_user_per_minute
+    search_criteria = [
+      "created_at > :time AND submitter_id = :submitter_id",
+      { time: 1.minutes.ago, submitter_id: submitter_id }
+    ]
+
+    recently_created_count = self.class.where(search_criteria).count
+
+    if recently_created_count > 5
+      errors[:base] << "No more than five short urls can be created per minute"
+    end
+  end
 
   belongs_to :submitter,
     foreign_key: :submitter_id,
@@ -16,6 +32,15 @@ class ShortenedUrl < ActiveRecord::Base
     -> { distinct },
     through: :visits,
     source: :visitor
+
+  has_many :taggings,
+    foreign_key: :shortened_url_id,
+    primary_key: :id,
+    class_name: :Tagging
+
+  has_many :topics,
+    through: :taggings,
+    source: :tag_topic
 
   def self.random_code
     code = SecureRandom::urlsafe_base64

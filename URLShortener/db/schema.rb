@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160323211642) do
+ActiveRecord::Schema.define(version: 20160323223529) do
 
   create_table "shortened_urls", force: :cascade do |t|
     t.string   "long_url",     null: false
@@ -22,6 +22,19 @@ ActiveRecord::Schema.define(version: 20160323211642) do
   end
 
   add_index "shortened_urls", ["submitter_id", "short_url"], name: "index_shortened_urls_on_submitter_id_and_short_url"
+
+  create_table "tag_topics", force: :cascade do |t|
+    t.string   "topic",      null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "taggings", force: :cascade do |t|
+    t.integer  "tag_topic_id",     null: false
+    t.integer  "shortened_url_id", null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string   "email"
