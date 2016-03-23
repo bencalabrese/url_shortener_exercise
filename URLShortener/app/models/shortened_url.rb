@@ -13,6 +13,7 @@ class ShortenedUrl < ActiveRecord::Base
     class_name: :Visit
 
   has_many :visitors,
+    -> { distinct },
     through: :visits,
     source: :visitor
 
@@ -29,16 +30,16 @@ class ShortenedUrl < ActiveRecord::Base
   end
 
   def num_clicks
-    visitors.select(:user_id).count
+    visits.count
   end
 
   def num_uniques
-    visitors.select(:user_id).distinct.count
+    visitors.count
   end
 
   def num_recent_uniques
     time_limit = ["visits.created_at > :time", {time: 10.minutes.ago}]
 
-    visitors.select(:user_id).where(time_limit).distinct.count
+    visitors.where(time_limit).count
   end
 end
