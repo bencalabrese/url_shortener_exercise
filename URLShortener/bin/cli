@@ -17,6 +17,7 @@ when 0
 when 1
   puts "Type in the shortened URL:"
   short = ShortenedUrl.where(short_url: gets.chomp).first
+  Visit.create!(user_id: user.id, shortened_url_id: short.id)
   Launchy.open(short.long_url)
 end
 

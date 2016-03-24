@@ -64,6 +64,10 @@ class ShortenedUrl < ActiveRecord::Base
     ShortenedUrl.create!(long_url: long_url, submitter_id: user.id, short_url: self.random_code)
   end
 
+  def self.prune
+    puts "Hello world."
+  end
+
   def num_clicks
     visits.count
   end
